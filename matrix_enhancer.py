@@ -1,4 +1,6 @@
 import numpy as np
+from sklearn.decomposition import TruncatedSVD
+
 import sys
 sys.path.insert(0, '../common/')
 import common
@@ -28,10 +30,6 @@ class MatrixEnhancer:
             return result
 
         def get_index2word(file, key_type=int, value_type=str):
-            """ATTENTION
-            This function is different from what in graph_data_provider.
-            Here, key is id and token is value, while in graph_data_provider, token is key and id is value.
-            """
             d = {}
             with open(file, encoding='utf-8') as f:
                 for line in f:
@@ -66,9 +64,49 @@ class MatrixEnhancer:
 
         return cls(cooccurrence_matrix, tokens)
 
+    def raw2ppmi(self, k_shift=1.0):
+        """
+        Function from https://github.com/piskvorky/word_embeddings/blob/master/run_embed.py
+        Convert raw counts from `get_coccur` into positive PMI values (as per Levy & Goldberg),
+        in place.
+        The result is an efficient stream of sparse word vectors (=no extra data copy).
+        """
+
+        cooccur = np.copy(self.matrix)
+        # following lines a bit tedious, as we try to avoid making temporary copies of the (large) `cooccur` matrix
+        marginal_word = cooccur.sum(axis=1)
+        marginal_context = cooccur.sum(axis=0)
+        cooccur /= marginal_word[:, None]  # #(w, c) / #w
+        cooccur /= marginal_context  # #(w, c) / (#w * #c)
+        cooccur *= marginal_word.sum()  # #(w, c) * D / (#w * #c)
+        np.log(cooccur, out=cooccur)  # PMI = log(#(w, c) * D / (#w * #c))
+
+        cooccur -= np.log(k_shift)  # shifted PMI = log(#(w, c) * D / (#w * #c)) - log(k)
+
+        # clipping PMI scores to be non-negative PPMI
+        cooccur.clip(0.0, out=cooccur)  # SPPMI = max(0, log(#(w, c) * D / (#w * #c)) - log(k))
+
+        # # normalizing PPMI word vectors to unit length
+        # for i, vec in enumerate(cooccur):
+        #     cooccur[i] = matutils.unitvec(vec)
+
+        # return matutils.Dense2Corpus(cooccur, documents_columns=False)
+        return cooccur
+
+    @staticmethod
+    def truncated_svd(matrix, dimension):
+        svd = TruncatedSVD(n_components=dimension)
+        svd.fit(matrix)
+        result = svd.transform(matrix)
+        return result
+
 
 if __name__ == '__main__':
-    MatrixEnhancer.from_encoded_edges_count_file_path(encoded_edges_count_file_path='/Users/zzcoolj/Desktop/GoW_new_ideas/input/cooccurrence matrix/encoded_edges_count_window_size_5_undirected.txt',
-                                                      valid_wordIds_path='/Users/zzcoolj/Desktop/GoW_new_ideas/input/cooccurrence matrix/valid_vocabulary_min_count_5_vocab_size_10000.txt',
-                                                      merged_dict_path='/Users/zzcoolj/Desktop/GoW_new_ideas/input/dict_merged.txt',
-                                                      output_folder='output/')
+    # MatrixEnhancer.from_encoded_edges_count_file_path(encoded_edges_count_file_path='/Users/zzcoolj/Desktop/GoW_new_ideas/input/cooccurrence matrix/encoded_edges_count_window_size_5_undirected.txt',
+    #                                                   valid_wordIds_path='/Users/zzcoolj/Desktop/GoW_new_ideas/input/cooccurrence matrix/valid_vocabulary_min_count_5_vocab_size_10000.txt',
+    #                                                   merged_dict_path='/Users/zzcoolj/Desktop/GoW_new_ideas/input/dict_merged.txt',
+    #                                                   output_folder='output/')
+
+    m = MatrixEnhancer.from_storage(matrix_path='output/encoded_edges_count_window_size_5_undirected_matrix.npy',
+                                    tokens_path='output/encoded_edges_count_window_size_5_undirected_tokens.pickle')
+    ppmi = m.raw2ppmi()
