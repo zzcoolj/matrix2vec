@@ -100,13 +100,20 @@ class MatrixEnhancer:
         result = svd.transform(matrix)
         return result
 
+    @staticmethod
+    def save_enhanced_matrix(matrix, output_path):
+        np.save(output_path, matrix, fix_imports=False)
+
 
 if __name__ == '__main__':
+    pass
     # MatrixEnhancer.from_encoded_edges_count_file_path(encoded_edges_count_file_path='/Users/zzcoolj/Desktop/GoW_new_ideas/input/cooccurrence matrix/encoded_edges_count_window_size_5_undirected.txt',
     #                                                   valid_wordIds_path='/Users/zzcoolj/Desktop/GoW_new_ideas/input/cooccurrence matrix/valid_vocabulary_min_count_5_vocab_size_10000.txt',
     #                                                   merged_dict_path='/Users/zzcoolj/Desktop/GoW_new_ideas/input/dict_merged.txt',
     #                                                   output_folder='output/')
 
-    m = MatrixEnhancer.from_storage(matrix_path='output/encoded_edges_count_window_size_5_undirected_matrix.npy',
-                                    tokens_path='output/encoded_edges_count_window_size_5_undirected_tokens.pickle')
-    ppmi = m.raw2ppmi()
+    # m = MatrixEnhancer.from_storage(matrix_path='output/encoded_edges_count_window_size_5_undirected_matrix.npy',
+    #                                 tokens_path='output/encoded_edges_count_window_size_5_undirected_tokens.pickle')
+    # result = MatrixEnhancer.truncated_svd(m.raw2ppmi(), 1000)
+    # MatrixEnhancer.save_enhanced_matrix(result, 'test.npy')
+
