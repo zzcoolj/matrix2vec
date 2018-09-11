@@ -94,6 +94,9 @@ class MatrixEnhancer:
         # return matutils.Dense2Corpus(cooccur, documents_columns=False)
         return cooccur
 
+    def raw2firstOrder(self):
+        pass
+
     @staticmethod
     def truncated_svd(matrix, dimension):
         svd = TruncatedSVD(n_components=dimension)

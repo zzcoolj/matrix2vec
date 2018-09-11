@@ -17,13 +17,14 @@ matrix2vec/input/
 """
 Get matrix from input/ and generate ppmi intermediate data and vectors of ppmi_svd
 """
-for i in range(2, 11):
-    m = me.MatrixEnhancer.from_storage(
-        matrix_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy',
-        tokens_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
-    ppmi = m.raw2ppmi()
-    me.MatrixEnhancer.save_enhanced_matrix(ppmi, 'output/intermediate_data/ppmi/ppmi_w'+str(i)+'.npy')
-    for dimension in [200, 500, 800, 1000]:
-        vectors = me.MatrixEnhancer.truncated_svd(ppmi, dimension)
-        me.MatrixEnhancer.save_enhanced_matrix(vectors, 'output/vectors/ppmi_svd/' + 'ppmi_svd_w' + str(i) +
-                                               '_d' + str(dimension) + '.npy')
+
+# for i in range(2, 11):
+#     m = me.MatrixEnhancer.from_storage(
+#         matrix_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy',
+#         tokens_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
+#     ppmi = m.raw2ppmi()
+#     me.MatrixEnhancer.save_enhanced_matrix(ppmi, 'output/intermediate_data/ppmi/ppmi_w'+str(i)+'.npy')
+#     for dimension in [200, 500, 800, 1000]:
+#         vectors = me.MatrixEnhancer.truncated_svd(ppmi, dimension)
+#         me.MatrixEnhancer.save_enhanced_matrix(vectors, 'output/vectors/ppmi_svd/' + 'ppmi_svd_w' + str(i) +
+#                                                '_d' + str(dimension) + '.npy')
