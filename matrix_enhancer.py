@@ -64,7 +64,7 @@ class MatrixEnhancer:
 
         return cls(cooccurrence_matrix, tokens)
 
-    def raw2ppmi(self, k_shift=1.0):
+    def raw2ppmi(self, k_shift=None):
         """
         Function from https://github.com/piskvorky/word_embeddings/blob/master/run_embed.py
         Convert raw counts from `get_coccur` into positive PMI values (as per Levy & Goldberg),
@@ -81,7 +81,8 @@ class MatrixEnhancer:
         cooccur *= marginal_word.sum()  # #(w, c) * D / (#w * #c)
         np.log(cooccur, out=cooccur)  # PMI = log(#(w, c) * D / (#w * #c))
 
-        cooccur -= np.log(k_shift)  # shifted PMI = log(#(w, c) * D / (#w * #c)) - log(k)
+        if k_shift:
+            cooccur -= np.log(k_shift)  # shifted PMI = log(#(w, c) * D / (#w * #c)) - log(k)
 
         # clipping PMI scores to be non-negative PPMI
         cooccur.clip(0.0, out=cooccur)  # SPPMI = max(0, log(#(w, c) * D / (#w * #c)) - log(k))
@@ -112,8 +113,8 @@ if __name__ == '__main__':
     #                                                   merged_dict_path='/Users/zzcoolj/Desktop/GoW_new_ideas/input/dict_merged.txt',
     #                                                   output_folder='input/')
 
-    # m = MatrixEnhancer.from_storage(matrix_path='output/encoded_edges_count_window_size_5_undirected_matrix.npy',
-    #                                 tokens_path='output/encoded_edges_count_window_size_5_undirected_tokens.pickle')
+    # m = MatrixEnhancer.from_storage(matrix_path='input/encoded_edges_count_window_size_5_undirected_matrix.npy',
+    #                                 tokens_path='input/encoded_edges_count_window_size_5_undirected_tokens.pickle')
     # result = MatrixEnhancer.truncated_svd(m.raw2ppmi(), 1000)
     # MatrixEnhancer.save_enhanced_matrix(result, 'test.npy')
 
