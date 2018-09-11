@@ -15,7 +15,7 @@ matrix2vec/input/
 #                                                          output_folder='input/')
 
 """
-Get matrix from input/ and generate ppmi intermediate data and vectors of ppmi_svd
+Get matrix from input/ and generate ppmi/ intermediate data and vectors of ppmi_svd
 """
 
 # for i in range(2, 11):
@@ -28,3 +28,18 @@ Get matrix from input/ and generate ppmi intermediate data and vectors of ppmi_s
 #         vectors = me.MatrixEnhancer.truncated_svd(ppmi, dimension)
 #         me.MatrixEnhancer.save_enhanced_matrix(vectors, 'output/vectors/ppmi_svd/' + 'ppmi_svd_w' + str(i) +
 #                                                '_d' + str(dimension) + '.npy')
+
+"""
+Get matrix from input/ and generate first_order/ intermediate data and vectors of firstOrder_svd
+"""
+
+for i in range(2, 11):
+    m = me.MatrixEnhancer.from_storage(
+        matrix_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy',
+        tokens_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
+    firstOrder = m.raw2firstOrder()
+    me.MatrixEnhancer.save_enhanced_matrix(firstOrder, 'output/intermediate_data/first_order/firstOrder_w'+str(i)+'.npy')
+    for dimension in [200, 500, 800, 1000]:
+        vectors = me.MatrixEnhancer.truncated_svd(firstOrder, dimension)
+        me.MatrixEnhancer.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_svd/' + 'firstOrder_svd_w' + str(i) +
+                                               '_d' + str(dimension) + '.npy')

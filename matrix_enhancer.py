@@ -94,8 +94,64 @@ class MatrixEnhancer:
         # return matutils.Dense2Corpus(cooccur, documents_columns=False)
         return cooccur
 
+    def _get_stochastic_matrix(self, remove_self_loops=False, change_zeros_to_minimum_positive_value=False):
+        """
+        Function from graph_builder.py of GNEG
+        """
+        vocab_size = self.matrix.shape[0]
+        stochastic_matrix = self.matrix.copy()
+
+        """ change all zeros values to the minimum positive value
+        change in the co-occurrence stage or change after percentage will get same result.
+        The only difference is:
+             change in the co-occurrence stage then calculate percentage, stochastic matrix is already normalized.
+             change after percentage, stochastic matrix need to be normalized again. So the previous one is better.
+        """
+        if change_zeros_to_minimum_positive_value:
+            # find zero position in the matrix
+            zero_indices_x, zero_indices_y = np.where(stochastic_matrix == 0)
+            zeros_length = len(zero_indices_x)
+            if zeros_length == 0:
+                print('No zero cells in matrix.')
+            else:
+                # find the second minimum value in matrix, temp_matrix is used for that
+                max_value = np.amax(stochastic_matrix)
+                temp_matrix = np.copy(stochastic_matrix)
+                for i in range(zeros_length):
+                    temp_matrix[zero_indices_x[i]][zero_indices_y[i]] = max_value
+                second_minimums = np.amin(temp_matrix, axis=1)  # Minima along the second axis
+                # set all zeros to second minimum values
+                for i in range(zeros_length):
+                    stochastic_matrix[zero_indices_x[i]][zero_indices_y[i]] = second_minimums[zero_indices_x[i]]
+
+        if remove_self_loops:
+            for i in range(vocab_size):
+                stochastic_matrix[i][i] = 0
+
+        # print(stochastic_matrix)
+
+        # calculate percentage
+        matrix_sum_row = np.sum(stochastic_matrix, axis=1, keepdims=True)  # sum of each row and preserve the dimension
+        stochastic_matrix /= matrix_sum_row
+        return stochastic_matrix
+
+    def one_to_t_step_random_walk_stochastic_matrix_yielder(self, t, remove_self_loops=False):
+        """
+        Function from graph_builder.py of GNEG
+        Instead of getting a specific t step random walk result, this method gets a dict of result from 1 step random
+        walk to t step random walk. This method should be used for grid search.
+        """
+        transition_matrix = self._get_stochastic_matrix(remove_self_loops=remove_self_loops)
+        result = transition_matrix
+        for t in range(1, t+1):
+            if t != 1:
+                result = np.matmul(result, transition_matrix)
+            yield result, t
+
     def raw2firstOrder(self):
-        pass
+        # TODO: Discuss when do normalization
+        stochastic_matrix = self._get_stochastic_matrix()
+        return np.dot(stochastic_matrix, stochastic_matrix.T)
 
     @staticmethod
     def truncated_svd(matrix, dimension):
