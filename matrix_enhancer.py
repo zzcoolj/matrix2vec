@@ -135,16 +135,18 @@ class MatrixEnhancer:
         stochastic_matrix /= matrix_sum_row
         return stochastic_matrix
 
-    def one_to_t_step_random_walk_stochastic_matrix_yielder(self, t, remove_self_loops=False):
+    def zero_to_t_step_random_walk_stochastic_matrix_yielder(self, t, remove_self_loops=False,
+                                                             change_zeros_to_minimum_positive_value=False):
         """
         Function from graph_builder.py of GNEG
         Instead of getting a specific t step random walk result, this method gets a dict of result from 1 step random
         walk to t step random walk. This method should be used for grid search.
         """
-        transition_matrix = self._get_stochastic_matrix(remove_self_loops=remove_self_loops)
+        transition_matrix = self._get_stochastic_matrix(remove_self_loops=remove_self_loops,
+                                                        change_zeros_to_minimum_positive_value=change_zeros_to_minimum_positive_value)
         result = transition_matrix
-        for t in range(1, t+1):
-            if t != 1:
+        for t in range(t+1):
+            if t != 0:
                 result = np.matmul(result, transition_matrix)
             yield result, t
 
