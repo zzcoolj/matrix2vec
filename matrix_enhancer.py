@@ -167,6 +167,51 @@ class MatrixEnhancer:
         np.save(output_path, matrix, fix_imports=False)
 
 
+class MatrixMixer:
+    def __init__(self, base_matrix, ingredient_matrix, base_window_size, ingredient_window_size):
+        self.base_matrix = base_matrix
+        self.ingredient_matrix = ingredient_matrix
+        self.base_window_size = base_window_size
+        self.ingredient_window_size = ingredient_window_size
+
+    @classmethod
+    def from_storage(cls, base_matrix_path, ingredient_matrix_path):
+        base_matrix = np.load(base_matrix_path)
+        ingredient_matrix = np.load(ingredient_matrix_path)
+        base_window_size = int(base_matrix_path.rpartition('_w')[2].split('.npy')[0])
+        ingredient_window_size = int(ingredient_matrix_path.rpartition('_w')[2].split('.npy')[0])
+        return cls(base_matrix, ingredient_matrix, base_window_size, ingredient_window_size)
+
+    def mix(self, k):
+        """
+        :return: base_matrix + k * ingredient_matrix
+        """
+        if self.base_window_size == self.ingredient_window_size:
+            # base_matrix and ingredient_matrix share the same tokens order <=> use the same tokens <=> same window size
+            return np.add(self.base_matrix, k * self.ingredient_matrix)
+        else:
+            ingredient_tokens_path = 'input/encoded_edges_count_window_size_'+str(self.ingredient_window_size)+'_undirected_tokens.pickle'
+            base_tokens_path = 'input/encoded_edges_count_window_size_'+str(self.base_window_size)+'_undirected_tokens.pickle'
+            ingredient_tokens = common.read_pickle(ingredient_tokens_path)
+            base_tokens = common.read_pickle(base_tokens_path)
+            return np.add(self.base_matrix, k * self._reorder_matrix(ingredient_tokens, base_tokens))
+
+    def _reorder_matrix(self, ingredient_tokens, base_tokens):
+        """e.g.
+        ingredient_tokens: [windows, apple, ibm, tesla]
+        base_tokens: [apple, tesla, ibm, windows] (what I want)
+        new_index_order = [1, 3, 2, 0]
+        1 means translated_matrix_order index 1 element apple is the first element in translated_reordered_matrix_order
+        3 means translated_matrix_order index 3 element tesla is the second element in translated_reordered_matrix_order
+        """
+        new_index_order = [ingredient_tokens.index(token) for token in base_tokens]
+        # reorder rows
+        reordered_matrix = self.ingredient_matrix[new_index_order, :]
+        # reorder columns
+        reordered_matrix = reordered_matrix[:, new_index_order]
+        return reordered_matrix
+
+
 if __name__ == '__main__':
     pass
     # MatrixEnhancer.from_encoded_edges_count_file_path(encoded_edges_count_file_path='/Users/zzcoolj/Desktop/GoW_new_ideas/input/cooccurrence matrix/encoded_edges_count_window_size_5_undirected.txt',
