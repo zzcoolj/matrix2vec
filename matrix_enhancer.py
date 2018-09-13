@@ -155,17 +155,6 @@ class MatrixEnhancer:
         stochastic_matrix = self._get_stochastic_matrix()
         return np.dot(stochastic_matrix, stochastic_matrix.T)
 
-    @staticmethod
-    def truncated_svd(matrix, dimension):
-        svd = TruncatedSVD(n_components=dimension)
-        svd.fit(matrix)
-        result = svd.transform(matrix)
-        return result
-
-    @staticmethod
-    def save_enhanced_matrix(matrix, output_path):
-        np.save(output_path, matrix, fix_imports=False)
-
 
 class MatrixMixer:
     def __init__(self, base_matrix, ingredient_matrix, base_window_size, ingredient_window_size):
@@ -210,6 +199,25 @@ class MatrixMixer:
         # reorder columns
         reordered_matrix = reordered_matrix[:, new_index_order]
         return reordered_matrix
+
+    def grid_search_k_yielder(self, ks, output_folder):
+        for k in ks:
+            mixed_matrix = self.mix(k)
+            np.save(output_folder+'ppmi_w5_firstOrder_w5_k'+str(k)+'.npy', mixed_matrix, fix_imports=False)
+            yield k, mixed_matrix
+
+
+class MatrixDimensionReducer:
+    @staticmethod
+    def truncated_svd(matrix, dimension):
+        svd = TruncatedSVD(n_components=dimension)
+        svd.fit(matrix)
+        result = svd.transform(matrix)
+        return result
+
+    @staticmethod
+    def save_enhanced_matrix(matrix, output_path):
+        np.save(output_path, matrix, fix_imports=False)
 
 
 if __name__ == '__main__':
