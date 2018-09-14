@@ -74,3 +74,4 @@ for k, mixed_matrix in m.grid_search_k_yielder(ks=[-0.1, -0.2, -0.5, -1, -2, -5,
         me.MatrixDimensionReducer.save_enhanced_matrix(vectors,
                                                        'output/vectors/ppmi+firstOrder_svd/' +
                                                        'ppmi_w5_+firstOrder_w5_k'+str(k)+'_svd_d'+str(dimension)+'.npy')
+# test
