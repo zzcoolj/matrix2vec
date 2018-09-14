@@ -179,6 +179,7 @@ class MatrixMixer:
             # base_matrix and ingredient_matrix share the same tokens order <=> use the same tokens <=> same window size
             return np.add(self.base_matrix, k * self.ingredient_matrix)
         else:
+            print('reorder matrix')
             ingredient_tokens_path = 'input/encoded_edges_count_window_size_'+str(self.ingredient_window_size)+'_undirected_tokens.pickle'
             base_tokens_path = 'input/encoded_edges_count_window_size_'+str(self.base_window_size)+'_undirected_tokens.pickle'
             ingredient_tokens = common.read_pickle(ingredient_tokens_path)
@@ -200,10 +201,10 @@ class MatrixMixer:
         reordered_matrix = reordered_matrix[:, new_index_order]
         return reordered_matrix
 
-    def grid_search_k_yielder(self, ks, output_folder):
+    def grid_search_k_yielder(self, ks, output_path_prefix):
         for k in ks:
             mixed_matrix = self.mix(k)
-            np.save(output_folder+'ppmi_w5_firstOrder_w5_k'+str(k)+'.npy', mixed_matrix, fix_imports=False)
+            np.save(output_path_prefix + str(k) + '.npy', mixed_matrix, fix_imports=False)
             yield k, mixed_matrix
 
 

@@ -62,15 +62,19 @@ Get matrix from input/ and generate rw_0/ rw_1/ rw_2/ intermediate data and vect
 #                                                    '_svd_w' + str(window_size) + '_d' + str(dimension) + '.npy')
 
 '''
-Get matrix from ppmi/ and first_order/ and generate ppmi+firstOrder/ intermediate data and vectors of ppmi+firstOrder_svd
+Get matrix from ppmi/ and first_order/ and generate ppmi+firstOrder/ intermediate data and vectors of ppmi+firstOrder_svd/
 '''
 
 m = me.MatrixMixer.from_storage(base_matrix_path='output/intermediate_data/ppmi/ppmi_w5.npy',
-                                ingredient_matrix_path='output/intermediate_data/first_order/firstOrder_w5.npy')
-for k, mixed_matrix in m.grid_search_k_yielder(ks=[-0.1, -0.2, -0.5, -1, -2, -5, -10, -20, -50, -100],
-                                               output_folder='output/intermediate_data/ppmi+firstOrder/'):
+                                ingredient_matrix_path='output/intermediate_data/rw_1/rw1_w7.npy')
+for k, mixed_matrix in m.grid_search_k_yielder(ks=[0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100],
+                                               output_path_prefix='output/intermediate_data/ppmi+rw1/ppmi_w5_rw1_w7_k'):
     for dimension in [500]:
         vectors = me.MatrixDimensionReducer.truncated_svd(mixed_matrix, dimension)
         me.MatrixDimensionReducer.save_enhanced_matrix(vectors,
-                                                       'output/vectors/ppmi+firstOrder_svd/' +
-                                                       'ppmi_w5_+firstOrder_w5_k'+str(k)+'_svd_d'+str(dimension)+'.npy')
+                                                       'output/vectors/ppmi+rw1_svd/' +
+                                                       'ppmi_w5_+rw1_w7_k'+str(k)+'_svd_d'+str(dimension)+'.npy')
+
+"""
+Get matrix from ppmi/ and rw_1/ and generate ppmi+rw1/ intermediate data and vectors of ppmi+rw1_svd/
+"""
