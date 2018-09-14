@@ -67,7 +67,8 @@ Get matrix from ppmi/ and first_order/ and generate ppmi+firstOrder/ intermediat
 
 m = me.MatrixMixer.from_storage(base_matrix_path='output/intermediate_data/ppmi/ppmi_w5.npy',
                                 ingredient_matrix_path='output/intermediate_data/rw_1/rw1_w7.npy')
-for k, mixed_matrix in m.grid_search_k_yielder(ks=[0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100],
+# for k, mixed_matrix in m.grid_search_k_yielder(ks=[0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100],
+for k, mixed_matrix in m.grid_search_k_yielder(ks=[-0.1, -0.2, -0.5, -1, -2, -5, -10, -20, -50, -100],
                                                output_path_prefix='output/intermediate_data/ppmi+rw1/ppmi_w5_rw1_w7_k'):
     for dimension in [500]:
         vectors = me.MatrixDimensionReducer.truncated_svd(mixed_matrix, dimension)
