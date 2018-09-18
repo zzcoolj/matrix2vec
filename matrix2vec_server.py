@@ -15,7 +15,7 @@ matrix2vec/input/
 #                                                          output_folder='input/')
 
 """
-Get matrix from input/ and generate rw_0/ rw_1/ rw_2/ intermediate data and vectors of rw0_svd/ rw1_svd/ rw2_svd/
+Get matrix from input/ and generate rw_0/ rw_1/ rw_2/ intermediate and first_order/ intermediate data
 """
 
 # for window_size in range(2, 11):
@@ -23,13 +23,44 @@ Get matrix from input/ and generate rw_0/ rw_1/ rw_2/ intermediate data and vect
 #         matrix_path='input/encoded_edges_count_window_size_' + str(window_size) + '_undirected_matrix.npy',
 #         tokens_path='input/encoded_edges_count_window_size_' + str(window_size) + '_undirected_tokens.pickle')
 #     for matrix, step in m.zero_to_t_step_random_walk_stochastic_matrix_yielder(t=2):
-#         me.MatrixEnhancer.save_enhanced_matrix(matrix, 'output/intermediate_data/rw_' + str(step) + '/rw' + str(step) +
-#                                                '_w' + str(window_size) + '.npy')
-#         for dimension in [200, 500, 800, 1000]:
-#             vectors = me.MatrixEnhancer.truncated_svd(matrix, dimension)
-#             me.MatrixEnhancer.save_enhanced_matrix(vectors,
-#                                                    'output/vectors/rw' + str(step) + '_svd/' + 'rw' + str(step) +
-#                                                    '_svd_w' + str(window_size) + '_d' + str(dimension) + '.npy')
+#         me.save_enhanced_matrix(matrix, 'output/intermediate_data/rw' + str(step) + '/rw' + str(step) +
+#                                 '_w' + str(window_size) + '.npy')
+
+# for i in range(2, 11):
+#     m = me.MatrixEnhancer.from_storage(
+#         matrix_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy',
+#         tokens_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
+#     firstOrder = m.raw2firstOrder()
+#     me.save_enhanced_matrix(firstOrder, 'output/intermediate_data/first_order/firstOrder_w'+str(i)+'.npy')
+
+'''
+From first_order/ intermediate data to firstOrder_normalized_svd/ ,cooc_normalized_svd/ and rw012_normalized_svd/
+'''
+
+# for i in range(2, 11):
+#     mn = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w'+str(i)+'.npy')
+#     normalized_matrix = mn.pmi_without_log()
+#     for dimension in [200, 500, 800, 1000]:
+#         vectors = me.MatrixDimensionReducer.truncated_svd(normalized_matrix, dimension)
+#         me.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_normalized_svd/' + 'firstOrder_normalized_svd_w' +
+#                                 str(i) + '_d' + str(dimension) + '.npy')
+#
+# for i in range(2, 11):
+#     mn = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy')
+#     normalized_matrix = mn.pmi_without_log()
+#     for dimension in [200, 500, 800, 1000]:
+#         vectors = me.MatrixDimensionReducer.truncated_svd(normalized_matrix, dimension)
+#         me.save_enhanced_matrix(vectors, 'output/vectors/cooc_normalized_svd/' + 'cooc_normalized_svd_w' +
+#                                 str(i) + '_d' + str(dimension) + '.npy')
+
+for rw in [0, 1, 2]:
+    for i in range(2, 11):
+        mn = me.MatrixNormalization.from_storage('output/intermediate_data/rw'+str(rw)+'/rw'+str(rw)+'_w'+str(i)+'.npy')
+        normalized_matrix = mn.pmi_without_log()
+        for dimension in [200, 500, 800, 1000]:
+            vectors = me.MatrixDimensionReducer.truncated_svd(normalized_matrix, dimension)
+            me.save_enhanced_matrix(vectors, 'output/vectors/rw' + str(rw) + '_normalized_svd/' + 'rw' + str(rw) +
+                                    '_normalized_svd_w' + str(i) + '_d' + str(dimension) + '.npy')
 
 '''
 Get matrix from ppmi/ and first_order/ and generate ppmi+firstOrder/ intermediate data and vectors of ppmi+firstOrder_svd/
@@ -46,35 +77,3 @@ Get matrix from ppmi/ and rw_2/ and generate ppmi+rw2/ intermediate data and vec
 #         me.MatrixDimensionReducer.save_enhanced_matrix(vectors,
 #                                                        'output/vectors/ppmi+rw2_svd/' +
 #                                                        'ppmi_w5_+rw2_w3_k'+str(k)+'_svd_d'+str(dimension)+'.npy')
-
-
-"""
-Get matrix from input/ and generate first_order/ intermediate data
-"""
-
-# for i in range(2, 11):
-#     m = me.MatrixEnhancer.from_storage(
-#         matrix_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy',
-#         tokens_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
-#     firstOrder = m.raw2firstOrder()
-#     me.save_enhanced_matrix(firstOrder, 'output/intermediate_data/first_order/firstOrder_w'+str(i)+'.npy')
-
-'''
-From first_order/ intermediate data to firstOrder_normalized_svd/ and cooc_normalized_svd/
-'''
-
-for i in range(2, 11):
-    mn = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w'+str(i)+'.npy')
-    normalized_matrix = mn.pmi_without_log()
-    for dimension in [200, 500, 800, 1000]:
-        vectors = me.MatrixDimensionReducer.truncated_svd(normalized_matrix, dimension)
-        me.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_normalized_svd/' + 'firstOrder_normalized_svd_w' +
-                                str(i) + '_d' + str(dimension) + '.npy')
-
-for i in range(2, 11):
-    mn = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy')
-    normalized_matrix = mn.pmi_without_log()
-    for dimension in [200, 500, 800, 1000]:
-        vectors = me.MatrixDimensionReducer.truncated_svd(normalized_matrix, dimension)
-        me.save_enhanced_matrix(vectors, 'output/vectors/cooc_normalized_svd/' + 'cooc_normalized_svd_w' +
-                                str(i) + '_d' + str(dimension) + '.npy')
