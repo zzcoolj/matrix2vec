@@ -30,7 +30,7 @@ Get matrix from input/ and generate ppmi/ intermediate data and vectors of ppmi_
 #                                                '_d' + str(dimension) + '.npy')
 
 '''
-Get matrix from input/ and generate first_order/ intermediate data and vectors of firstOrder_svd
+Get matrix from input/ and generate first_order_line_normalized/ intermediate data and vectors of firstOrder_svd
 '''
 
 # for i in range(2, 11):
@@ -67,12 +67,24 @@ Get matrix from ppmi/ and rw_1/ and generate ppmi+rw1/ intermediate data and vec
 Get matrix from ppmi/ and rw_2/ and generate ppmi+rw2/ intermediate data and vectors of ppmi+rw2_svd/
 '''
 
-m = me.MatrixMixer.from_storage(base_matrix_path='output/intermediate_data/ppmi/ppmi_w5.npy',
-                                ingredient_matrix_path='output/intermediate_data/rw_2/rw2_w3.npy')
-for k, mixed_matrix in m.grid_search_k_yielder(ks=[0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, -0.1, -0.2, -0.5, -1, -2, -5, -10, -20, -50, -100],
-                                               output_path_prefix='output/intermediate_data/ppmi+rw2/ppmi_w5_rw2_w3_k'):
-    for dimension in [500]:
-        vectors = me.MatrixDimensionReducer.truncated_svd(mixed_matrix, dimension)
-        me.MatrixDimensionReducer.save_enhanced_matrix(vectors,
-                                                       'output/vectors/ppmi+rw2_svd/' +
-                                                       'ppmi_w5_+rw2_w3_k'+str(k)+'_svd_d'+str(dimension)+'.npy')
+# m = me.MatrixMixer.from_storage(base_matrix_path='output/intermediate_data/ppmi/ppmi_w5.npy',
+#                                 ingredient_matrix_path='output/intermediate_data/rw_2/rw2_w3.npy')
+# for k, mixed_matrix in m.grid_search_k_yielder(ks=[0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, -0.1, -0.2, -0.5, -1, -2, -5, -10, -20, -50, -100],
+#                                                output_path_prefix='output/intermediate_data/ppmi+rw2/ppmi_w5_rw2_w3_k'):
+#     for dimension in [500]:
+#         vectors = me.MatrixDimensionReducer.truncated_svd(mixed_matrix, dimension)
+#         me.MatrixDimensionReducer.save_enhanced_matrix(vectors,
+#                                                        'output/vectors/ppmi+rw2_svd/' +
+#                                                        'ppmi_w5_+rw2_w3_k'+str(k)+'_svd_d'+str(dimension)+'.npy')
+
+
+"""
+Get matrix from input/ and generate  
+"""
+
+for i in range(2, 11):
+    m = me.MatrixEnhancer.from_storage(
+        matrix_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy',
+        tokens_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
+    firstOrder = m.raw2firstOrder()
+    me.save_enhanced_matrix(firstOrder, 'output/intermediate_data/first_order/firstOrder_w'+str(i)+'.npy')

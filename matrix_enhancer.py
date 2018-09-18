@@ -249,9 +249,9 @@ class MatrixDimensionReducer(object):
         result = svd.transform(matrix)
         return result
 
-    @staticmethod
-    def save_enhanced_matrix(matrix, output_path):
-        np.save(output_path, matrix, fix_imports=False)
+
+def save_enhanced_matrix(matrix, output_path):
+    np.save(output_path, matrix, fix_imports=False)
 
 
 if __name__ == '__main__':
