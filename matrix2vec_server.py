@@ -52,20 +52,29 @@ Get matrix from ppmi/ and rw_2/ and generate ppmi+rw2/ intermediate data and vec
 Get matrix from input/ and generate first_order/ intermediate data
 """
 
-for i in range(2, 11):
-    m = me.MatrixEnhancer.from_storage(
-        matrix_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy',
-        tokens_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
-    firstOrder = m.raw2firstOrder()
-    me.save_enhanced_matrix(firstOrder, 'output/intermediate_data/first_order/firstOrder_w'+str(i)+'.npy')
+# for i in range(2, 11):
+#     m = me.MatrixEnhancer.from_storage(
+#         matrix_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy',
+#         tokens_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
+#     firstOrder = m.raw2firstOrder()
+#     me.save_enhanced_matrix(firstOrder, 'output/intermediate_data/first_order/firstOrder_w'+str(i)+'.npy')
 
 '''
-From first_order/ intermediate data to firstOrder_normalized_svd/
+From first_order/ intermediate data to firstOrder_normalized_svd/ and cooc_normalized_svd/
 '''
+
 for i in range(2, 11):
-    mn = me.MatrixNormalization.from_storage('output/intermediate_data/first_order/firstOrder_w'+str(i)+'.npy')
+    mn = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w'+str(i)+'.npy')
     normalized_matrix = mn.pmi_without_log()
     for dimension in [200, 500, 800, 1000]:
         vectors = me.MatrixDimensionReducer.truncated_svd(normalized_matrix, dimension)
         me.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_normalized_svd/' + 'firstOrder_normalized_svd_w' +
+                                str(i) + '_d' + str(dimension) + '.npy')
+
+for i in range(2, 11):
+    mn = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy')
+    normalized_matrix = mn.pmi_without_log()
+    for dimension in [200, 500, 800, 1000]:
+        vectors = me.MatrixDimensionReducer.truncated_svd(normalized_matrix, dimension)
+        me.save_enhanced_matrix(vectors, 'output/vectors/cooc_normalized_svd/' + 'cooc_normalized_svd_w' +
                                 str(i) + '_d' + str(dimension) + '.npy')
