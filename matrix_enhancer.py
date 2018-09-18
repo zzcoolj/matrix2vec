@@ -212,6 +212,11 @@ class MatrixNormalization(object):
     def __init__(self, matrix):
         self.matrix = matrix
 
+    @classmethod
+    def from_storage(cls, matrix_path):
+        matrix = np.load(matrix_path)
+        return cls(matrix)
+
     def pmi_without_log(self):
         normalized_matrix = np.copy(self.matrix)
         # following lines a bit tedious, as we try to avoid making temporary copies of the (large) `cooccur` matrix
@@ -220,11 +225,17 @@ class MatrixNormalization(object):
         normalized_matrix /= marginal_word[:, None]  # #(w, c) / #w
         normalized_matrix /= marginal_context  # #(w, c) / (#w * #c)
         normalized_matrix *= marginal_word.sum()  # #(w, c) * D / (#w * #c)
+        return normalized_matrix
 
 
 class MatrixSmoothing(object):
     def __init__(self, matrix):
         self.matrix = matrix
+
+    @classmethod
+    def from_storage(cls, matrix_path):
+        matrix = np.load(matrix_path)
+        return cls(matrix)
 
     def log_shifted_positive(self, k_shift):
         smoothed_matrix = np.copy(self.matrix)
