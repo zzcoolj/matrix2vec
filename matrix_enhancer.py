@@ -7,7 +7,7 @@ import common
 import multi_processing
 
 
-class MatrixEnhancer:
+class MatrixEnhancer(object):
     def __init__(self, matrix, tokens):
         self.matrix = matrix
         self.tokens = tokens
@@ -64,35 +64,35 @@ class MatrixEnhancer:
 
         return cls(cooccurrence_matrix, tokens)
 
-    def raw2ppmi(self, k_shift=None):
-        """
-        Function from https://github.com/piskvorky/word_embeddings/blob/master/run_embed.py
-        Convert raw counts from `get_coccur` into positive PMI values (as per Levy & Goldberg),
-        in place.
-        The result is an efficient stream of sparse word vectors (=no extra data copy).
-        """
-
-        cooccur = np.copy(self.matrix)
-        # following lines a bit tedious, as we try to avoid making temporary copies of the (large) `cooccur` matrix
-        marginal_word = cooccur.sum(axis=1)
-        marginal_context = cooccur.sum(axis=0)
-        cooccur /= marginal_word[:, None]  # #(w, c) / #w
-        cooccur /= marginal_context  # #(w, c) / (#w * #c)
-        cooccur *= marginal_word.sum()  # #(w, c) * D / (#w * #c)
-        np.log(cooccur, out=cooccur)  # PMI = log(#(w, c) * D / (#w * #c))
-
-        if k_shift:
-            cooccur -= np.log(k_shift)  # shifted PMI = log(#(w, c) * D / (#w * #c)) - log(k)
-
-        # clipping PMI scores to be non-negative PPMI
-        cooccur.clip(0.0, out=cooccur)  # SPPMI = max(0, log(#(w, c) * D / (#w * #c)) - log(k))
-
-        # # normalizing PPMI word vectors to unit length
-        # for i, vec in enumerate(cooccur):
-        #     cooccur[i] = matutils.unitvec(vec)
-
-        # return matutils.Dense2Corpus(cooccur, documents_columns=False)
-        return cooccur
+    # def raw2ppmi(self, k_shift=None):
+    #     """
+    #     Function from https://github.com/piskvorky/word_embeddings/blob/master/run_embed.py
+    #     Convert raw counts from `get_coccur` into positive PMI values (as per Levy & Goldberg),
+    #     in place.
+    #     The result is an efficient stream of sparse word vectors (=no extra data copy).
+    #     """
+    #
+    #     cooccur = np.copy(self.matrix)
+    #     # following lines a bit tedious, as we try to avoid making temporary copies of the (large) `cooccur` matrix
+    #     marginal_word = cooccur.sum(axis=1)
+    #     marginal_context = cooccur.sum(axis=0)
+    #     cooccur /= marginal_word[:, None]  # #(w, c) / #w
+    #     cooccur /= marginal_context  # #(w, c) / (#w * #c)
+    #     cooccur *= marginal_word.sum()  # #(w, c) * D / (#w * #c)
+    #     np.log(cooccur, out=cooccur)  # PMI = log(#(w, c) * D / (#w * #c))
+    #
+    #     if k_shift:
+    #         cooccur -= np.log(k_shift)  # shifted PMI = log(#(w, c) * D / (#w * #c)) - log(k)
+    #
+    #     # clipping PMI scores to be non-negative PPMI
+    #     cooccur.clip(0.0, out=cooccur)  # SPPMI = max(0, log(#(w, c) * D / (#w * #c)) - log(k))
+    #
+    #     # # normalizing PPMI word vectors to unit length
+    #     # for i, vec in enumerate(cooccur):
+    #     #     cooccur[i] = matutils.unitvec(vec)
+    #
+    #     # return matutils.Dense2Corpus(cooccur, documents_columns=False)
+    #     return cooccur
 
     def _get_stochastic_matrix(self, remove_self_loops=False, change_zeros_to_minimum_positive_value=False):
         """
@@ -152,11 +152,11 @@ class MatrixEnhancer:
 
     def raw2firstOrder(self):
         # TODO: Discuss when do normalization
-        stochastic_matrix = self._get_stochastic_matrix()
-        return np.dot(stochastic_matrix, stochastic_matrix.T)
+        # stochastic_matrix = self._get_stochastic_matrix()
+        return np.dot(self.matrix, self.matrix.T)
 
 
-class MatrixMixer:
+class MatrixMixer(object):
     def __init__(self, base_matrix, ingredient_matrix, base_window_size, ingredient_window_size):
         self.base_matrix = base_matrix
         self.ingredient_matrix = ingredient_matrix
@@ -208,7 +208,40 @@ class MatrixMixer:
             yield k, mixed_matrix
 
 
-class MatrixDimensionReducer:
+class MatrixNormalization(object):
+    def __init__(self, matrix):
+        self.matrix = matrix
+
+    def pmi_without_log(self):
+        normalized_matrix = np.copy(self.matrix)
+        # following lines a bit tedious, as we try to avoid making temporary copies of the (large) `cooccur` matrix
+        marginal_word = normalized_matrix.sum(axis=1)
+        marginal_context = normalized_matrix.sum(axis=0)
+        normalized_matrix /= marginal_word[:, None]  # #(w, c) / #w
+        normalized_matrix /= marginal_context  # #(w, c) / (#w * #c)
+        normalized_matrix *= marginal_word.sum()  # #(w, c) * D / (#w * #c)
+
+
+class MatrixSmoothing(object):
+    def __init__(self, matrix):
+        self.matrix = matrix
+
+    def log_shifted_positive(self, k_shift):
+        smoothed_matrix = np.copy(self.matrix)
+        np.log(smoothed_matrix, out=smoothed_matrix)  # PMI = log(#(w, c) * D / (#w * #c))
+
+        if k_shift:
+            smoothed_matrix -= np.log(k_shift)  # shifted PMI = log(#(w, c) * D / (#w * #c)) - log(k)
+
+        # clipping PMI scores to be non-negative PPMI
+        smoothed_matrix.clip(0.0, out=smoothed_matrix)  # SPPMI = max(0, log(#(w, c) * D / (#w * #c)) - log(k))
+
+        # # normalizing PPMI word vectors to unit length
+        # for i, vec in enumerate(cooccur):
+        #     cooccur[i] = matutils.unitvec(vec)
+
+
+class MatrixDimensionReducer(object):
     @staticmethod
     def truncated_svd(matrix, dimension):
         svd = TruncatedSVD(n_components=dimension)
