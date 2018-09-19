@@ -204,7 +204,7 @@ class MatrixMixer(object):
     def grid_search_k_yielder(self, ks, output_path_prefix):
         for k in ks:
             mixed_matrix = self.mix(k)
-            np.save(output_path_prefix + str(k) + '.npy', mixed_matrix, fix_imports=False)
+            # np.save(output_path_prefix + str(k) + '.npy', mixed_matrix, fix_imports=False)
             yield k, mixed_matrix
 
 
