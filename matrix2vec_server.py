@@ -99,8 +99,12 @@ From matrix from input/ and firstOrder/ to cooc_firstOrder_normalized_svd/
 Specific case
 """
 k = -1
-m = me.MatrixMixer.from_storage(base_matrix_path='input/encoded_edges_count_window_size_5_undirected_matrix.npy',
-                                ingredient_matrix_path='output/intermediate_data/firstOrder/firstOrder_w5.npy')
+base_matrix = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_5_undirected_matrix.npy')
+normalized_base_matrix = base_matrix.pmi_without_log()
+ingredient_matrix = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w5.npy')
+normalized_ingredient_matrix = ingredient_matrix.pmi_without_log()
+m = me.MatrixMixer(base_matrix=normalized_base_matrix, ingredient_matrix=normalized_ingredient_matrix,
+                   base_window_size=5, ingredient_window_size=5)
 mm = m.mix(k)
 mms = me.MatrixSmoothing(mm).log_shifted_positive(k_shift=0)
 for dimension in [500, 800, 1000]:
