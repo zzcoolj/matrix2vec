@@ -111,7 +111,7 @@ for i in range(10000):
         if mm[i][j] < 0:
             print(i)
             print(j)
-            print(m[i][j])
+            print(mm[i][j])
             exit()
 mms = me.MatrixSmoothing(mm).log_shifted_positive(k_shift=0)
 for dimension in [500, 800, 1000]:
