@@ -250,6 +250,7 @@ class MatrixSmoothing(object):
         # # normalizing PPMI word vectors to unit length
         # for i, vec in enumerate(cooccur):
         #     cooccur[i] = matutils.unitvec(vec)
+        return smoothed_matrix
 
 
 class MatrixDimensionReducer(object):

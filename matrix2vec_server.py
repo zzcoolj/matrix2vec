@@ -82,15 +82,28 @@ Get matrix from ppmi/ and rw_2/ and generate ppmi+rw2/ intermediate data and vec
 From matrix from input/ and firstOrder/ to cooc_firstOrder_normalized_svd/
 '''
 
-window_size = 5
-base_matrix = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_' + str(window_size) + '_undirected_matrix.npy')
-normalized_base_matrix = base_matrix.pmi_without_log()
-ingredient_matrix = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w'+str(window_size)+'.npy')
-normalized_ingredient_matrix = ingredient_matrix.pmi_without_log()
-m = me.MatrixMixer(base_matrix=normalized_base_matrix, ingredient_matrix=normalized_ingredient_matrix,
-                   base_window_size=window_size, ingredient_window_size=window_size)
-for k, mixed_matrix in m.grid_search_k_yielder(ks=[0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, -0.1, -0.2, -0.5, -1, -2, -5, -10, -20, -50, -100],
-                                               output_path_prefix=''):
-    for dimension in [500, 800, 1000]:
-        vectors = me.MatrixDimensionReducer.truncated_svd(mixed_matrix, dimension)
-        me.save_enhanced_matrix(vectors, 'output/vectors/cooc_firstOrder_normalized_svd/' + 'cooc_w5_firstOrder_w5_normalized_k'+str(k)+'_svd_d'+str(dimension)+'.npy')
+# window_size = 5
+# base_matrix = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_' + str(window_size) + '_undirected_matrix.npy')
+# normalized_base_matrix = base_matrix.pmi_without_log()
+# ingredient_matrix = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w'+str(window_size)+'.npy')
+# normalized_ingredient_matrix = ingredient_matrix.pmi_without_log()
+# m = me.MatrixMixer(base_matrix=normalized_base_matrix, ingredient_matrix=normalized_ingredient_matrix,
+#                    base_window_size=window_size, ingredient_window_size=window_size)
+# for k, mixed_matrix in m.grid_search_k_yielder(ks=[0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, -0.1, -0.2, -0.5, -1, -2, -5, -10, -20, -50, -100],
+#                                                output_path_prefix=''):
+#     for dimension in [500, 800, 1000]:
+#         vectors = me.MatrixDimensionReducer.truncated_svd(mixed_matrix, dimension)
+#         me.save_enhanced_matrix(vectors, 'output/vectors/cooc_firstOrder_normalized_svd/' + 'cooc_w5_firstOrder_w5_normalized_k'+str(k)+'_svd_d'+str(dimension)+'.npy')
+
+"""
+Specific case
+"""
+k = -1
+m = me.MatrixMixer.from_storage(base_matrix_path='input/encoded_edges_count_window_size_5_undirected_matrix.npy',
+                                ingredient_matrix_path='output/intermediate_data/firstOrder/firstOrder_w5.npy')
+mm = m.mix(k)
+mms = me.MatrixSmoothing(mm).log_shifted_positive(k_shift=0)
+for dimension in [500, 800, 1000]:
+    vectors = me.MatrixDimensionReducer.truncated_svd(mms, dimension)
+    me.save_enhanced_matrix(vectors, 'output/vectors/specific/' + 'specific_k' + str(k) +
+                            '_svd_d' + str(dimension) + '.npy')
