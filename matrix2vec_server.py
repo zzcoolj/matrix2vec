@@ -106,6 +106,13 @@ normalized_ingredient_matrix = ingredient_matrix.pmi_without_log()
 m = me.MatrixMixer(base_matrix=normalized_base_matrix, ingredient_matrix=normalized_ingredient_matrix,
                    base_window_size=5, ingredient_window_size=5)
 mm = m.mix(k)
+for i in range(10000):
+    for j in range(10000):
+        if mm[i][j] < 0:
+            print(i)
+            print(j)
+            print(m[i][j])
+            exit()
 mms = me.MatrixSmoothing(mm).log_shifted_positive(k_shift=0)
 for dimension in [500, 800, 1000]:
     vectors = me.MatrixDimensionReducer.truncated_svd(mms, dimension)
