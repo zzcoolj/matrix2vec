@@ -109,6 +109,8 @@ m = me.MatrixMixer(base_matrix=normalized_base_matrix, ingredient_matrix=normali
 mm = m.mix(k)
 
 mm = np.abs(mm)
+mmn = me.MatrixNormalization(mm).pmi_without_log()
+
 # count = 0
 # for i in range(10000):
 #     for j in range(10000):
@@ -117,7 +119,7 @@ mm = np.abs(mm)
 #             count += 1
 # print(count)
 
-mms = me.MatrixSmoothing(mm).log_shifted_positive(k_shift=0)
+mms = me.MatrixSmoothing(mmn).log_shifted_positive(k_shift=0)
 for dimension in [500, 800, 1000]:
     vectors = me.MatrixDimensionReducer.truncated_svd(mms, dimension)
     me.save_enhanced_matrix(vectors, 'output/vectors/specific/' + 'specific_k' + str(k) +
