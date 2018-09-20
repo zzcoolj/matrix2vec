@@ -1,4 +1,5 @@
 import matrix_enhancer as me
+import numpy as np
 
 '''
 Generate cooccurrence_matrix and tokens of different window sizes from gow/output/intermediate data/graph/ to
@@ -103,16 +104,19 @@ base_matrix = me.MatrixNormalization.from_storage('input/encoded_edges_count_win
 normalized_base_matrix = base_matrix.pmi_without_log()
 ingredient_matrix = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w5.npy')
 normalized_ingredient_matrix = ingredient_matrix.pmi_without_log()
-m = me.MatrixMixer(base_matrix=normalized_ingredient_matrix, ingredient_matrix=normalized_base_matrix,
+m = me.MatrixMixer(base_matrix=normalized_base_matrix, ingredient_matrix=normalized_ingredient_matrix,
                    base_window_size=5, ingredient_window_size=5)
 mm = m.mix(k)
-count = 0
-for i in range(10000):
-    for j in range(10000):
-        if mm[i][j] < 0:
-            mm[i][j] = 0
-            count += 1
-print(count)
+
+mm = np.abs(mm)
+# count = 0
+# for i in range(10000):
+#     for j in range(10000):
+#         if mm[i][j] < 0:
+#             mm[i][j] = 0
+#             count += 1
+# print(count)
+
 mms = me.MatrixSmoothing(mm).log_shifted_positive(k_shift=0)
 for dimension in [500, 800, 1000]:
     vectors = me.MatrixDimensionReducer.truncated_svd(mms, dimension)
