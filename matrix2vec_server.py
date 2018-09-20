@@ -103,7 +103,7 @@ base_matrix = me.MatrixNormalization.from_storage('input/encoded_edges_count_win
 normalized_base_matrix = base_matrix.pmi_without_log()
 ingredient_matrix = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w5.npy')
 normalized_ingredient_matrix = ingredient_matrix.pmi_without_log()
-m = me.MatrixMixer(base_matrix=normalized_base_matrix, ingredient_matrix=normalized_ingredient_matrix,
+m = me.MatrixMixer(base_matrix=normalized_ingredient_matrix, ingredient_matrix=normalized_base_matrix,
                    base_window_size=5, ingredient_window_size=5)
 mm = m.mix(k)
 count = 0
