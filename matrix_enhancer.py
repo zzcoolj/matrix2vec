@@ -167,8 +167,14 @@ class MatrixMixer(object):
     def from_storage(cls, base_matrix_path, ingredient_matrix_path):
         base_matrix = np.load(base_matrix_path)
         ingredient_matrix = np.load(ingredient_matrix_path)
-        base_window_size = int(base_matrix_path.rpartition('_w')[2].split('.npy')[0])
-        ingredient_window_size = int(ingredient_matrix_path.rpartition('_w')[2].split('.npy')[0])
+        if base_matrix_path.startswith('input'):
+            base_window_size = int(base_matrix_path.split('window_size_')[1].split('_', 1)[0])
+        else:
+            base_window_size = int(base_matrix_path.rpartition('_w')[2].split('.npy')[0])
+        if ingredient_matrix_path.startswith('input'):
+            ingredient_window_size = int(ingredient_matrix_path.split('window_size_')[1].split('_', 1)[0])
+        else:
+            ingredient_window_size = int(ingredient_matrix_path.rpartition('_w')[2].split('.npy')[0])
         return cls(base_matrix, ingredient_matrix, base_window_size, ingredient_window_size)
 
     def mix(self, k):
