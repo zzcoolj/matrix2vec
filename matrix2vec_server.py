@@ -137,7 +137,19 @@ Specific case
 '''
 Matrix concatenate
 '''
+# matrix1 = np.load('output/vectors/cooc_normalized_smoothed_svd/cooc_normalized_smoothed_svd_w5_d500.npy')
+# matrix2 = np.load('output/vectors/firstOrder_normalized_svd/firstOrder_normalized_svd_w5_d500.npy')
+# matrix_all = np.concatenate((matrix1, matrix2), axis=1)
+# me.save_enhanced_matrix(matrix_all, 'output/vectors/specific/test.npy')
+
+matrix_all = np.load('output/vectors/specific/test.npy')
+m2 = me.MatrixDimensionReducer.truncated_svd(matrix_all, 500)
+me.save_enhanced_matrix(m2, 'output/vectors/specific/m2.npy')
+
 matrix1 = np.load('output/vectors/cooc_normalized_smoothed_svd/cooc_normalized_smoothed_svd_w5_d500.npy')
-matrix2 = np.load('output/vectors/firstOrder_normalized_svd/firstOrder_normalized_svd_w5_d500.npy')
-matrix_all = np.concatenate((matrix1, matrix2), axis=1)
-me.save_enhanced_matrix(matrix_all, 'output/vectors/specific/test.npy')
+matrix2 = np.load('output/vectors/firstOrder_normalized_smoothed_svd/firstOrder_normalized_smoothed_svd_w5_d500.npy')
+m3 = np.concatenate((matrix1, matrix2), axis=1)
+me.save_enhanced_matrix(m3, 'output/vectors/specific/m3.npy')
+
+m4 = me.MatrixDimensionReducer.truncated_svd(m3, 500)
+me.save_enhanced_matrix(m4, 'output/vectors/specific/m4.npy')
