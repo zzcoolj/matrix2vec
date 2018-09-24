@@ -137,7 +137,7 @@ Specific case
 '''
 Matrix concatenate
 '''
-matrix1 = np.load('cooc_normalized_smoothed_svd_w5_d500.npy')
-matrix2 = np.load('firstOrder_normalized_svd_w5_d500.npy')
+matrix1 = np.load('output/vectors/cooc_normalized_smoothed_svd/cooc_normalized_smoothed_svd_w5_d500.npy')
+matrix2 = np.load('output/vectors/firstOrder_normalized_svd/firstOrder_normalized_svd_w5_d500.npy')
 matrix_all = np.concatenate((matrix1, matrix2), axis=1)
 me.save_enhanced_matrix(matrix_all, 'output/vectors/specific/test.npy')
