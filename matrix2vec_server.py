@@ -35,17 +35,22 @@ Get matrix from input/ and generate rw_0/ rw_1/ rw_2/ intermediate and first_ord
 #     me.save_enhanced_matrix(firstOrder, 'output/intermediate_data/first_order/firstOrder_w'+str(i)+'.npy')
 
 '''
-From first_order/ intermediate data to firstOrder_normalized_svd/ ,cooc_normalized_svd/ and rw012_normalized_svd/
+From first_order/ intermediate data to firstOrder_normalized_svd/ (or firstOrder_normalized_smoothed_svd/)
+cooc_normalized_svd/
+rw012_normalized_svd/
 '''
 
-# for i in range(2, 11):
-#     mn = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w'+str(i)+'.npy')
-#     normalized_matrix = mn.pmi_without_log()
-#     for dimension in [200, 500, 800, 1000]:
-#         vectors = me.MatrixDimensionReducer.truncated_svd(normalized_matrix, dimension)
-#         me.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_normalized_svd/' + 'firstOrder_normalized_svd_w' +
-#                                 str(i) + '_d' + str(dimension) + '.npy')
-#
+for i in range(2, 11):
+    mn = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w'+str(i)+'.npy')
+    matrix = mn.pmi_without_log()
+
+    matrix = me.MatrixSmoothing(matrix).log_shifted_positive(k_shift=None)
+
+    for dimension in [200, 500, 800, 1000]:
+        vectors = me.MatrixDimensionReducer.truncated_svd(matrix, dimension)
+        me.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_normalized_smoothed_svd/' + 'firstOrder_normalized_smoothed_svd_w' +
+                                str(i) + '_d' + str(dimension) + '.npy')
+
 # for i in range(2, 11):
 #     mn = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy')
 #     normalized_matrix = mn.pmi_without_log()
@@ -99,28 +104,29 @@ From matrix from input/ and firstOrder/ to cooc_firstOrder_normalized_svd/
 """
 Specific case
 """
-k = -1
-base_matrix = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_5_undirected_matrix.npy')
-normalized_base_matrix = base_matrix.pmi_without_log()
-ingredient_matrix = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w5.npy')
-normalized_ingredient_matrix = ingredient_matrix.pmi_without_log()
-m = me.MatrixMixer(base_matrix=normalized_base_matrix, ingredient_matrix=normalized_ingredient_matrix,
-                   base_window_size=5, ingredient_window_size=5)
-mm = m.mix(k)
 
-mm = np.abs(mm)
-mmn = me.MatrixNormalization(mm).pmi_without_log()
-
-# count = 0
-# for i in range(10000):
-#     for j in range(10000):
-#         if mm[i][j] < 0:
-#             mm[i][j] = 0
-#             count += 1
-# print(count)
-
-mms = me.MatrixSmoothing(mmn).log_shifted_positive(k_shift=0)
-for dimension in [500, 800, 1000]:
-    vectors = me.MatrixDimensionReducer.truncated_svd(mms, dimension)
-    me.save_enhanced_matrix(vectors, 'output/vectors/specific/' + 'specific_k' + str(k) +
-                            '_svd_d' + str(dimension) + '.npy')
+# k = -1
+# base_matrix = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_5_undirected_matrix.npy')
+# normalized_base_matrix = base_matrix.pmi_without_log()
+# ingredient_matrix = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w5.npy')
+# normalized_ingredient_matrix = ingredient_matrix.pmi_without_log()
+# m = me.MatrixMixer(base_matrix=normalized_base_matrix, ingredient_matrix=normalized_ingredient_matrix,
+#                    base_window_size=5, ingredient_window_size=5)
+# mm = m.mix(k)
+#
+# mm = np.abs(mm)
+# mmn = me.MatrixNormalization(mm).pmi_without_log()
+#
+# # count = 0
+# # for i in range(10000):
+# #     for j in range(10000):
+# #         if mm[i][j] < 0:
+# #             mm[i][j] = 0
+# #             count += 1
+# # print(count)
+#
+# mms = me.MatrixSmoothing(mmn).log_shifted_positive(k_shift=0)
+# for dimension in [500, 800, 1000]:
+#     vectors = me.MatrixDimensionReducer.truncated_svd(mms, dimension)
+#     me.save_enhanced_matrix(vectors, 'output/vectors/specific/' + 'specific_k' + str(k) +
+#                             '_svd_d' + str(dimension) + '.npy')
