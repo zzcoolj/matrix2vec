@@ -4,3 +4,5 @@ output/*
 input/*
 !/**/.gitkeep
 !/**/**/.gitkeep
+.DS_Store
+archive/

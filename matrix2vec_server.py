@@ -135,34 +135,44 @@ Specific case
 #                             '_svd_d' + str(dimension) + '.npy')
 
 '''
-Matrix concatenate
+Matrix concatenate idea1
 '''
-# matrix1 = np.load('output/vectors/cooc_normalized_smoothed_svd/cooc_normalized_smoothed_svd_w5_d500.npy')
-# matrix2 = np.load('output/vectors/firstOrder_normalized_svd/firstOrder_normalized_svd_w5_d500.npy')
-# matrix_all = np.concatenate((matrix1, matrix2), axis=1)
-# me.save_enhanced_matrix(matrix_all, 'output/vectors/specific/test.npy')
 
-matrix_all = np.load('output/vectors/specific/test.npy')
-m2 = me.MatrixDimensionReducer.truncated_svd(matrix_all, 300)
-me.save_enhanced_matrix(m2, 'output/vectors/specific/m2_300.npy')
-m2 = me.MatrixDimensionReducer.truncated_svd(matrix_all, 500)
-me.save_enhanced_matrix(m2, 'output/vectors/specific/m2_500.npy')
-m2 = me.MatrixDimensionReducer.truncated_svd(matrix_all, 700)
-me.save_enhanced_matrix(m2, 'output/vectors/specific/m2_700.npy')
-m2 = me.MatrixDimensionReducer.truncated_svd(matrix_all, 900)
-me.save_enhanced_matrix(m2, 'output/vectors/specific/m2_900.npy')
+# # matrix1 = np.load('output/vectors/cooc_normalized_smoothed_svd/cooc_normalized_smoothed_svd_w5_d500.npy')
+# # matrix2 = np.load('output/vectors/firstOrder_normalized_svd/firstOrder_normalized_svd_w5_d500.npy')
+# # matrix_all = np.concatenate((matrix1, matrix2), axis=1)
+# # me.save_enhanced_matrix(matrix_all, 'output/vectors/specific/test.npy')
+#
+# matrix_all = np.load('output/vectors/specific/test.npy')
+# m2 = me.MatrixDimensionReducer.truncated_svd(matrix_all, 300)
+# me.save_enhanced_matrix(m2, 'output/vectors/specific/m2_300.npy')
+# m2 = me.MatrixDimensionReducer.truncated_svd(matrix_all, 500)
+# me.save_enhanced_matrix(m2, 'output/vectors/specific/m2_500.npy')
+# m2 = me.MatrixDimensionReducer.truncated_svd(matrix_all, 700)
+# me.save_enhanced_matrix(m2, 'output/vectors/specific/m2_700.npy')
+# m2 = me.MatrixDimensionReducer.truncated_svd(matrix_all, 900)
+# me.save_enhanced_matrix(m2, 'output/vectors/specific/m2_900.npy')
+#
+# # matrix1 = np.load('output/vectors/cooc_normalized_smoothed_svd/cooc_normalized_smoothed_svd_w5_d500.npy')
+# # matrix2 = np.load('output/vectors/firstOrder_normalized_smoothed_svd/firstOrder_normalized_smoothed_svd_w5_d500.npy')
+# # m3 = np.concatenate((matrix1, matrix2), axis=1)
+# # me.save_enhanced_matrix(m3, 'output/vectors/specific/m3.npy')
+#
+# m3 = np.load('output/vectors/specific/m3.npy')
+# m4 = me.MatrixDimensionReducer.truncated_svd(m3, 300)
+# me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_300.npy')
+# m4 = me.MatrixDimensionReducer.truncated_svd(m3, 500)
+# me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_500.npy')
+# m4 = me.MatrixDimensionReducer.truncated_svd(m3, 700)
+# me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_700.npy')
+# m4 = me.MatrixDimensionReducer.truncated_svd(m3, 900)
+# me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_900.npy')
 
-# matrix1 = np.load('output/vectors/cooc_normalized_smoothed_svd/cooc_normalized_smoothed_svd_w5_d500.npy')
-# matrix2 = np.load('output/vectors/firstOrder_normalized_smoothed_svd/firstOrder_normalized_smoothed_svd_w5_d500.npy')
-# m3 = np.concatenate((matrix1, matrix2), axis=1)
-# me.save_enhanced_matrix(m3, 'output/vectors/specific/m3.npy')
-
-m3 = np.load('output/vectors/specific/m3.npy')
-m4 = me.MatrixDimensionReducer.truncated_svd(m3, 300)
-me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_300.npy')
-m4 = me.MatrixDimensionReducer.truncated_svd(m3, 500)
-me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_500.npy')
-m4 = me.MatrixDimensionReducer.truncated_svd(m3, 700)
-me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_700.npy')
-m4 = me.MatrixDimensionReducer.truncated_svd(m3, 900)
-me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_900.npy')
+"""
+Matrix concatenate idea2
+"""
+window_size = 5
+m1 = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w'+str(window_size)+'.npy')
+m2 = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_' + str(window_size) + '_undirected_matrix.npy')
+m1 = m1.pmi_without_log()
+m2 = m2.pmi_without_log()
