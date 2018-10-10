@@ -233,6 +233,12 @@ class MatrixNormalization(object):
         normalized_matrix *= marginal_word.sum()  # #(w, c) * D / (#w * #c)
         return normalized_matrix
 
+    def line_normalization(self):
+        normalized_matrix = np.copy(self.matrix)
+        line_sum = np.sum(normalized_matrix, axis=1, keepdims=True)  # sum of each row and preserve the dimension
+        normalized_matrix /= line_sum
+        return normalized_matrix
+
 
 class MatrixSmoothing(object):
     def __init__(self, matrix):
