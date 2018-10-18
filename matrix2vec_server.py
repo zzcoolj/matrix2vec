@@ -51,16 +51,19 @@ rw012_normalized_svd/
 #         me.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_normalized_smoothed_svd/' + 'firstOrder_normalized_smoothed_svd_w' +
 #                                 str(i) + '_d' + str(dimension) + '.npy')
 
-# for i in range(2, 11):
-#     mn = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy')
-#     matrix = mn.pmi_without_log()
-#
-#     matrix = me.MatrixSmoothing(matrix).log_shifted_positive(k_shift=None)
-#
-#     for dimension in [200, 500, 800, 1000]:
-#         vectors = me.MatrixDimensionReducer.truncated_svd(matrix, dimension)
-#         me.save_enhanced_matrix(vectors, 'output/vectors/cooc_normalized_smoothed_svd/' + 'cooc_normalized_smoothed_svd_w' +
-#                                 str(i) + '_d' + str(dimension) + '.npy')
+for i in range(2, 11):
+    mn = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy')
+    matrix = mn.pmi_without_log()
+
+    matrix = me.MatrixSmoothing(matrix).log_shifted_positive(k_shift=None)
+
+    me.save_enhanced_matrix(matrix, 'output/intermediate_data/ppmi/' + 'ppmi_w' +
+                            str(i) + '.npy')
+
+    # for dimension in [200, 500, 800, 1000]:
+    #     vectors = me.MatrixDimensionReducer.truncated_svd(matrix, dimension)
+    #     me.save_enhanced_matrix(vectors, 'output/vectors/cooc_normalized_smoothed_svd/' + 'cooc_normalized_smoothed_svd_w' +
+    #                             str(i) + '_d' + str(dimension) + '.npy')
 
 # for rw in [0, 1, 2]:
 #     for i in range(2, 11):
@@ -172,26 +175,26 @@ Matrix concatenate idea1
 Matrix concatenate idea2
 """
 
-window_size = 5
-
-m1 = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w'+str(window_size)+'.npy')
-m2 = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_' + str(window_size) + '_undirected_matrix.npy')
-# m1 = m1.line_normalization()
-# m1 = m1.pmi_without_log()
-m1 = me.MatrixSmoothing(m1.matrix).log_shifted_positive(k_shift=None)
-m1 = me.MatrixNormalization(m1).line_normalization()
-# m2 = m2.line_normalization()
-# m2 = m2.pmi_without_log()
-m2 = me.MatrixSmoothing(m2.matrix).log_shifted_positive(k_shift=None)
-m2 = me.MatrixNormalization(m2).line_normalization()
-m3 = np.concatenate((m1, m2), axis=1)
-m4 = me.MatrixDimensionReducer.truncated_svd(m3, 300)
-me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_300.npy')
-m4 = me.MatrixDimensionReducer.truncated_svd(m3, 500)
-me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_500.npy')
-m4 = me.MatrixDimensionReducer.truncated_svd(m3, 700)
-me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_700.npy')
-m4 = me.MatrixDimensionReducer.truncated_svd(m3, 900)
-me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_900.npy')
-m4 = me.MatrixDimensionReducer.truncated_svd(m3, 1000)
-me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_1000.npy')
+# window_size = 5
+#
+# m1 = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w'+str(window_size)+'.npy')
+# m2 = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_' + str(window_size) + '_undirected_matrix.npy')
+# # m1 = m1.line_normalization()
+# # m1 = m1.pmi_without_log()
+# m1 = me.MatrixSmoothing(m1.matrix).log_shifted_positive(k_shift=None)
+# m1 = me.MatrixNormalization(m1).line_normalization()
+# # m2 = m2.line_normalization()
+# # m2 = m2.pmi_without_log()
+# m2 = me.MatrixSmoothing(m2.matrix).log_shifted_positive(k_shift=None)
+# m2 = me.MatrixNormalization(m2).line_normalization()
+# m3 = np.concatenate((m1, m2), axis=1)
+# m4 = me.MatrixDimensionReducer.truncated_svd(m3, 300)
+# me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_300.npy')
+# m4 = me.MatrixDimensionReducer.truncated_svd(m3, 500)
+# me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_500.npy')
+# m4 = me.MatrixDimensionReducer.truncated_svd(m3, 700)
+# me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_700.npy')
+# m4 = me.MatrixDimensionReducer.truncated_svd(m3, 900)
+# me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_900.npy')
+# m4 = me.MatrixDimensionReducer.truncated_svd(m3, 1000)
+# me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_1000.npy')

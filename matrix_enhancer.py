@@ -1,5 +1,8 @@
 import numpy as np
 from sklearn.decomposition import TruncatedSVD
+import matplotlib
+matplotlib.use('agg') # Must be before importing matplotlib.pyplot or pylab!
+import matplotlib.pyplot as plt
 
 import sys
 sys.path.insert(0, '../common/')
@@ -276,6 +279,35 @@ class MatrixDimensionReducer(object):
 
 def save_enhanced_matrix(matrix, output_path):
     np.save(output_path, matrix, fix_imports=False)
+
+
+def matrix_vis(matrix, output_path):
+    # # find zero position in the matrix
+    # zero_indices_x, zero_indices_y = np.where(matrix == 0)
+    # # find the second minimum value in matrix, temp_matrix is used for that
+    # max_value = np.amax(matrix)
+    # temp_matrix = np.copy(matrix)
+    # for i in range(len(zero_indices_x)):
+    #     temp_matrix[zero_indices_x[i]][zero_indices_y[i]] = max_value
+    # second_minimum = np.amin(temp_matrix)  # first minimum is always 0
+    # # set all zeros to second minimum value
+    # for i in range(len(zero_indices_x)):
+    #     matrix[zero_indices_x[i]][zero_indices_y[i]] = second_minimum
+
+    # matrix = np.log10(matrix)  # Necessary for negative samples matrix, nearly all black if not.
+    matrix_to_show = np.copy(matrix)
+    for i in range(matrix_to_show.shape[0]):
+        for j in range(matrix_to_show.shape[1]):
+            if matrix_to_show[i][j] != 0:
+                matrix_to_show[i][j] = 1
+
+    plt.imshow(matrix_to_show, cmap="nipy_spectral")  # plt.cm.BuPu_r, hot -> bad choices (no big difference)
+    plt.colorbar()
+    # print(np.amax(matrix))
+    # print(np.amin(matrix))
+    # plt.show()
+    plt.savefig(output_path)
+    plt.clf()
 
 
 if __name__ == '__main__':
