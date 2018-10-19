@@ -277,6 +277,30 @@ class MatrixDimensionReducer(object):
         return result
 
 
+class MatrixMasker(object):
+    def __init__(self, matrix):
+        self.matrix = matrix
+
+    def get_matrix_info(self, additional_matrix):
+        zero_indices_x, zero_indices_y = np.where(self.matrix == 0)
+        zero_cells_count = len(zero_indices_x)
+        print('#zero cells:', zero_cells_count)
+
+        count = 0
+        for i in range(len(zero_indices_x)):
+            if additional_matrix[zero_indices_x[i]][zero_indices_y[i]] != 0:
+                count += 1
+        print('#non-zero cells in additional matrix in the corresponding zero positions:', count,
+              "{0:.0%}".format(count/zero_cells_count))
+
+    def get_zero_positions(self):
+        # find zero position in the matrix
+        zero_indices_x, zero_indices_y = np.where(self.matrix == 0)
+        temp_matrix = np.copy(self.matrix)
+        for i in range(len(zero_indices_x)):
+            temp_matrix[zero_indices_x[i]][zero_indices_y[i]] = max_value
+
+
 def save_enhanced_matrix(matrix, output_path):
     np.save(output_path, matrix, fix_imports=False)
 
