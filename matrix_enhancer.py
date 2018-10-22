@@ -3,6 +3,8 @@ from sklearn.decomposition import TruncatedSVD
 import matplotlib
 matplotlib.use('agg') # Must be before importing matplotlib.pyplot or pylab!
 import matplotlib.pyplot as plt
+from nltk.corpus import stopwords
+import string
 
 import sys
 sys.path.insert(0, '../common/')
@@ -153,10 +155,21 @@ class MatrixEnhancer(object):
                 result = np.matmul(result, transition_matrix)
             yield result, t
 
-    def raw2firstOrder(self):
-        # TODO: Discuss when do normalization
-        # stochastic_matrix = self._get_stochastic_matrix()
-        return np.dot(self.matrix, self.matrix.T)
+    def raw2firstOrder(self, no_influence_of_stop_words_and_punctuation):
+        if no_influence_of_stop_words_and_punctuation:
+            stop = stopwords.words('english') + list(string.punctuation)
+            stop_indices = []
+            for i in range(len(self.tokens)):
+                if self.tokens[i] in stop:
+                    stop_indices.append(i)
+            print(stop_indices)
+            m = np.copy(self.matrix)
+            m[:, stop_indices] = 0  # replace corresponding columns to 0
+            m[stop_indices, :] = 0  # replace corresponding rows to 0
+            print(m)
+            return np.dot(m, m.T)
+        else:
+            return np.dot(self.matrix, self.matrix.T)
 
 
 class MatrixMixer(object):
