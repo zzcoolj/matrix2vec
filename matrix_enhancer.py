@@ -169,6 +169,28 @@ class MatrixEnhancer(object):
         else:
             return np.dot(self.matrix, self.matrix.T)
 
+    def draw_stopWords_and_punctuation(self, output_path):
+        stopWords_indices = []
+        stops = stopwords.words('english')
+        punctuations_indices = []
+        punctuations = list(string.punctuation)
+        for i in range(len(self.tokens)):
+            if self.tokens[i] in stops:
+                stopWords_indices.append(i)
+            elif self.tokens[i] in punctuations:
+                punctuations_indices.append(i)
+        m = np.zeros((len(self.tokens), len(self.tokens)))
+        # set stop word token rows and columns to 1
+        m[:, stopWords_indices] = 1
+        m[stopWords_indices, :] = 1
+        # set punctuation rows and columns to 2
+        m[:, punctuations_indices] = 2
+        m[punctuations_indices, :] = 2
+        plt.imshow(m, cmap="nipy_spectral")  # plt.cm.BuPu_r, hot -> bad choices (no big difference)
+        plt.colorbar()
+        plt.savefig(output_path)
+        plt.clf()
+
 
 class MatrixMixer(object):
     def __init__(self, base_matrix, ingredient_matrix, base_window_size, ingredient_window_size):
