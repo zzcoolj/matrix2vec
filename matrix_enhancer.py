@@ -162,11 +162,9 @@ class MatrixEnhancer(object):
             for i in range(len(self.tokens)):
                 if self.tokens[i] in stop:
                     stop_indices.append(i)
-            print(stop_indices)
             m = np.copy(self.matrix)
             m[:, stop_indices] = 0  # replace corresponding columns to 0
             m[stop_indices, :] = 0  # replace corresponding rows to 0
-            print(m)
             return np.dot(m, m.T)
         else:
             return np.dot(self.matrix, self.matrix.T)
