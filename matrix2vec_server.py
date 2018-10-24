@@ -196,8 +196,10 @@ def super_concatenate(folder_a_path, folder_b_path):
             tokens_b = common.read_pickle(
                 'input/encoded_edges_count_window_size_' + str(j) + '_undirected_tokens.pickle')
             if i == j:
+                print('yes')
                 matrix_b_reordered = matrix_b
             else:
+                print('no')
                 matrix_b_reordered = me.MatrixMixer._reorder_matrix(ingredient_matrix=matrix_b,
                                                                     ingredient_tokens=tokens_b, base_tokens=tokens_a)
             matrix_mix = np.concatenate((matrix_a, matrix_b_reordered), axis=1)
