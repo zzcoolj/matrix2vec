@@ -1,9 +1,12 @@
 import matrix_enhancer as me
 import numpy as np
+
 import sys
 sys.path.insert(0, '../common/')
 import common
 import multi_processing
+sys.path.insert(0, '../word_embeddings_evaluator/')
+import evaluator_server
 
 '''
 Generate cooccurrence_matrix and tokens of different window sizes from gow/output/intermediate data/graph/ to
@@ -181,14 +184,14 @@ def super_concatenate(folder_a_path, folder_b_path):
     :param folder_b_path: ends with '/'
     :return:
     """
-    max_window_size = 10
-    dimensions = [500, 700, 1000]
+    max_window_size = 3
+    dimensions = [500, 700]
     for i in range(2, max_window_size+1):
         folder_a_name = folder_a_path.split('!', -1)[-2]
+        folder_b_name = folder_b_path.split('!', -1)[-2]
         matrix_a = np.load(folder_a_path + folder_a_name + '_w' + str(i) + '.npy')
         tokens_a = common.read_pickle('input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
         for j in range(2, max_window_size + 1):
-            folder_b_name = folder_b_path.split('!', -1)[-2]
             matrix_b = np.load(folder_b_path + folder_b_name + '_w' + str(j) + '.npy')
             tokens_b = common.read_pickle(
                 'input/encoded_edges_count_window_size_' + str(j) + '_undirected_tokens.pickle')
@@ -203,3 +206,10 @@ def super_concatenate(folder_a_path, folder_b_path):
                 me.save_enhanced_matrix(vectors,
                                         'output/vectors/to_delete/' + str(folder_a_name) + '_w' + str(i) + '_' + str(
                                             folder_b_name) + '_w' + str(j) + '_d' + str(dimension) + '.npy')
+
+        # evaluate all combinations based on specific i
+        evaluator_server.evaluate_folder_superConcatenate(files_prefix='output/vectors/to_delete/' + str(folder_a_name) + '_w' + str(i) + '_' + str(folder_b_name) + '_w',
+                                                          base_window_size=i,
+                                                          dimensions=dimensions,
+                                                          window_size_max=max_window_size,
+                                                          output_folder_path='output/vectors/to_delete/')
