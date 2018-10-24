@@ -1,5 +1,9 @@
 import matrix_enhancer as me
 import numpy as np
+import sys
+sys.path.insert(0, '../common/')
+import common
+import multi_processing
 
 '''
 Generate cooccurrence_matrix and tokens of different window sizes from gow/output/intermediate data/graph/ to
@@ -26,13 +30,13 @@ Get matrix from input/ and generate rw0/ rw1/ rw2/ intermediate and firstOrder/ 
 #     for matrix, step in m.zero_to_t_step_random_walk_stochastic_matrix_yielder(t=2):
 #         me.save_enhanced_matrix(matrix, 'output/intermediate_data/rw' + str(step) + '/rw' + str(step) +
 #                                 '_w' + str(window_size) + '.npy')
-
-for i in range(2, 11):
-    m = me.MatrixEnhancer.from_storage(
-        matrix_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy',
-        tokens_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
-    firstOrder = m.raw2firstOrder(no_influence_of_stop_words_and_punctuation=True)
-    me.save_enhanced_matrix(firstOrder, 'output/intermediate_data/firstOrder_noStopWords/firstOrder_noStopWords_w'+str(i)+'.npy')
+#
+# for i in range(2, 11):
+#     m = me.MatrixEnhancer.from_storage(
+#         matrix_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy',
+#         tokens_path='input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
+#     firstOrder = m.raw2firstOrder(no_influence_of_stop_words_and_punctuation=True)
+#     me.save_enhanced_matrix(firstOrder, 'output/intermediate_data/firstOrder_noStopWords/firstOrder_noStopWords_w'+str(i)+'.npy')
 
 '''
 From first_order/ intermediate data to firstOrder_normalized_svd/ (or firstOrder_normalized_smoothed_svd/)
@@ -107,36 +111,6 @@ From matrix from input/ and firstOrder/ to cooc_firstOrder_normalized_svd/
 #         vectors = me.MatrixDimensionReducer.truncated_svd(mixed_matrix, dimension)
 #         me.save_enhanced_matrix(vectors, 'output/vectors/cooc_firstOrder_normalized_svd/' + 'cooc_w5_firstOrder_w5_normalized_k'+str(k)+'_svd_d'+str(dimension)+'.npy')
 
-"""
-Specific case
-"""
-
-# k = -1
-# base_matrix = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_5_undirected_matrix.npy')
-# normalized_base_matrix = base_matrix.pmi_without_log()
-# ingredient_matrix = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w5.npy')
-# normalized_ingredient_matrix = ingredient_matrix.pmi_without_log()
-# m = me.MatrixMixer(base_matrix=normalized_base_matrix, ingredient_matrix=normalized_ingredient_matrix,
-#                    base_window_size=5, ingredient_window_size=5)
-# mm = m.mix(k)
-#
-# mm = np.abs(mm)
-# mmn = me.MatrixNormalization(mm).pmi_without_log()
-#
-# # count = 0
-# # for i in range(10000):
-# #     for j in range(10000):
-# #         if mm[i][j] < 0:
-# #             mm[i][j] = 0
-# #             count += 1
-# # print(count)
-#
-# mms = me.MatrixSmoothing(mmn).log_shifted_positive(k_shift=0)
-# for dimension in [500, 800, 1000]:
-#     vectors = me.MatrixDimensionReducer.truncated_svd(mms, dimension)
-#     me.save_enhanced_matrix(vectors, 'output/vectors/specific/' + 'specific_k' + str(k) +
-#                             '_svd_d' + str(dimension) + '.npy')
-
 '''
 Matrix concatenate idea1
 '''
@@ -198,3 +172,26 @@ Matrix concatenate idea2
 # me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_900.npy')
 # m4 = me.MatrixDimensionReducer.truncated_svd(m3, 1000)
 # me.save_enhanced_matrix(m4, 'output/vectors/specific/m4_1000.npy')
+
+
+def super_concatenate(folder_a_path, folder_b_path):
+    """
+
+    :param folder_a_path: ends with '/'
+    :param folder_b_path: ends with '/'
+    :return:
+    """
+    max_window_size = 10
+    dimensions = [500, 700, 1000]
+    for i in range(2, max_window_size+1):
+        folder_a_name = folder_a_path.split('!', -1)[-2]
+        matrix_a = np.load(folder_a_path + folder_a_name + '_w' + str(i) + '.npy')
+        for j in range(2, max_window_size + 1):
+            folder_b_name = folder_b_path.split('!', -1)[-2]
+            matrix_b = np.load(folder_b_path + folder_b_name + '_w' + str(i) + '.npy')
+            matrix_mix = np.concatenate((matrix_a, matrix_b), axis=1)
+            for dimension in dimensions:
+                vectors = me.MatrixDimensionReducer.truncated_svd(matrix_mix, dimension)
+                me.save_enhanced_matrix(vectors,
+                                        'output/vectors/to_delete/' + str(folder_a_name) + '_w' + str(i) + '_' + str(
+                                            folder_b_name) + '_w' + str(j) + '_d' + str(dimension) + '.npy')
