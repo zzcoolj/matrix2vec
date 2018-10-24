@@ -184,8 +184,8 @@ def super_concatenate(folder_a_path, folder_b_path):
     :param folder_b_path: ends with '/'
     :return:
     """
-    max_window_size = 3
-    dimensions = [500, 700]
+    max_window_size = 10
+    dimensions = [500, 700, 1000]
     for i in range(2, max_window_size+1):
         folder_a_name = folder_a_path.split('/', -1)[-2]
         folder_b_name = folder_b_path.split('/', -1)[-2]
