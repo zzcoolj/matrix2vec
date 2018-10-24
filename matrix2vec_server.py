@@ -187,8 +187,8 @@ def super_concatenate(folder_a_path, folder_b_path):
     max_window_size = 3
     dimensions = [500, 700]
     for i in range(2, max_window_size+1):
-        folder_a_name = folder_a_path.split('!', -1)[-2]
-        folder_b_name = folder_b_path.split('!', -1)[-2]
+        folder_a_name = folder_a_path.split('/', -1)[-2]
+        folder_b_name = folder_b_path.split('/', -1)[-2]
         matrix_a = np.load(folder_a_path + folder_a_name + '_w' + str(i) + '.npy')
         tokens_a = common.read_pickle('input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
         for j in range(2, max_window_size + 1):
