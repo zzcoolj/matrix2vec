@@ -226,9 +226,11 @@ class MatrixMixer(object):
             base_tokens_path = 'input/encoded_edges_count_window_size_'+str(self.base_window_size)+'_undirected_tokens.pickle'
             ingredient_tokens = common.read_pickle(ingredient_tokens_path)
             base_tokens = common.read_pickle(base_tokens_path)
-            return np.add(self.base_matrix, k * self._reorder_matrix(ingredient_tokens, base_tokens))
+            return np.add(self.base_matrix, k * self._reorder_matrix(self.ingredient_matrix,
+                                                                     ingredient_tokens, base_tokens))
 
-    def _reorder_matrix(self, ingredient_tokens, base_tokens):
+    @staticmethod
+    def _reorder_matrix(ingredient_matrix, ingredient_tokens, base_tokens):
         """e.g.
         ingredient_tokens: [windows, apple, ibm, tesla]
         base_tokens: [apple, tesla, ibm, windows] (what I want)
@@ -238,7 +240,7 @@ class MatrixMixer(object):
         """
         new_index_order = [ingredient_tokens.index(token) for token in base_tokens]
         # reorder rows
-        reordered_matrix = self.ingredient_matrix[new_index_order, :]
+        reordered_matrix = ingredient_matrix[new_index_order, :]
         # reorder columns
         reordered_matrix = reordered_matrix[:, new_index_order]
         return reordered_matrix

@@ -186,10 +186,18 @@ def super_concatenate(folder_a_path, folder_b_path):
     for i in range(2, max_window_size+1):
         folder_a_name = folder_a_path.split('!', -1)[-2]
         matrix_a = np.load(folder_a_path + folder_a_name + '_w' + str(i) + '.npy')
+        tokens_a = common.read_pickle('input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
         for j in range(2, max_window_size + 1):
             folder_b_name = folder_b_path.split('!', -1)[-2]
-            matrix_b = np.load(folder_b_path + folder_b_name + '_w' + str(i) + '.npy')
-            matrix_mix = np.concatenate((matrix_a, matrix_b), axis=1)
+            matrix_b = np.load(folder_b_path + folder_b_name + '_w' + str(j) + '.npy')
+            tokens_b = common.read_pickle(
+                'input/encoded_edges_count_window_size_' + str(j) + '_undirected_tokens.pickle')
+            if i == j:
+                matrix_b_reordered = matrix_b
+            else:
+                matrix_b_reordered = me.MatrixMixer._reorder_matrix(ingredient_matrix=matrix_b,
+                                                                    ingredient_tokens=tokens_b, base_tokens=tokens_a)
+            matrix_mix = np.concatenate((matrix_a, matrix_b_reordered), axis=1)
             for dimension in dimensions:
                 vectors = me.MatrixDimensionReducer.truncated_svd(matrix_mix, dimension)
                 me.save_enhanced_matrix(vectors,
