@@ -58,9 +58,9 @@ for i in range(2, 11):
     tokens = common.read_pickle('input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
     stop = stopwords.words('english') + list(string.punctuation)
     stop_indices = []
-    for i in range(len(tokens)):
-        if tokens[i] in stop:
-            stop_indices.append(i)
+    for index in range(len(tokens)):
+        if tokens[index] in stop:
+            stop_indices.append(index)
     matrix[:, stop_indices] = 0  # replace corresponding columns to 0
     matrix[stop_indices, :] = 0  # replace corresponding rows to 0
 
@@ -71,12 +71,12 @@ for i in range(2, 11):
         me.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_noStopWords_ppmied_svd/' + 'firstOrder_noStopWords_ppmied_svd_w' +
                                 str(i) + '_d' + str(dimension) + '.npy')
 
-for i in range(2, 11):
-    matrix = np.load('output/intermediate_data/firstOrder_noStopWords/firstOrder_noStopWords_w'+str(i)+'.npy')
-    for dimension in [500, 700, 1000]:
-        vectors = me.MatrixDimensionReducer.truncated_svd(matrix, dimension)
-        me.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_noStopWords_svd/' + 'firstOrder_noStopWords_svd_w' +
-                                str(i) + '_d' + str(dimension) + '.npy')
+# for i in range(2, 11):
+#     matrix = np.load('output/intermediate_data/firstOrder_noStopWords/firstOrder_noStopWords_w'+str(i)+'.npy')
+#     for dimension in [500, 700, 1000]:
+#         vectors = me.MatrixDimensionReducer.truncated_svd(matrix, dimension)
+#         me.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_noStopWords_svd/' + 'firstOrder_noStopWords_svd_w' +
+#                                 str(i) + '_d' + str(dimension) + '.npy')
 
 # for i in range(2, 11):
 #     matrix = np.load('output/intermediate_data/ppmi/' + 'ppmi_w' + str(i) + '.npy')
