@@ -43,7 +43,7 @@ Get matrix from input/ and generate rw0/ rw1/ rw2/ intermediate and firstOrder/ 
 
 '''
 From first_order/ intermediate data to firstOrder_normalized_svd/ (or firstOrder_normalized_smoothed_svd/)
-cooc_normalized_svd/
+ppmi_svd/
 rw012_normalized_svd/
 '''
 
@@ -58,19 +58,11 @@ rw012_normalized_svd/
 #         me.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_normalized_smoothed_svd/' + 'firstOrder_normalized_smoothed_svd_w' +
 #                                 str(i) + '_d' + str(dimension) + '.npy')
 
-# for i in range(2, 11):
-#     mn = me.MatrixNormalization.from_storage('input/encoded_edges_count_window_size_' + str(i) + '_undirected_matrix.npy')
-#     matrix = mn.pmi_without_log()
-#
-#     matrix = me.MatrixSmoothing(matrix).log_shifted_positive(k_shift=None)
-#
-#     me.save_enhanced_matrix(matrix, 'output/intermediate_data/ppmi/' + 'ppmi_w' +
-#                             str(i) + '.npy')
-
-    # for dimension in [200, 500, 800, 1000]:
-    #     vectors = me.MatrixDimensionReducer.truncated_svd(matrix, dimension)
-    #     me.save_enhanced_matrix(vectors, 'output/vectors/cooc_normalized_smoothed_svd/' + 'cooc_normalized_smoothed_svd_w' +
-    #                             str(i) + '_d' + str(dimension) + '.npy')
+for i in range(2, 11):
+    matrix = np.load('output/intermediate_data/ppmi/' + 'ppmi_w' + str(i) + '.npy')
+    for dimension in [500, 700, 1000]:
+        vectors = me.MatrixDimensionReducer.truncated_svd(matrix, dimension)
+        me.save_enhanced_matrix(vectors, 'output/vectors/ppmi_svd/' + 'ppmi_svd_w' + str(i) + '_d' + str(dimension) + '.npy')
 
 # for rw in [0, 1, 2]:
 #     for i in range(2, 11):
@@ -196,10 +188,8 @@ def super_concatenate(folder_a_path, folder_b_path):
             tokens_b = common.read_pickle(
                 'input/encoded_edges_count_window_size_' + str(j) + '_undirected_tokens.pickle')
             if i == j:
-                print('yes')
                 matrix_b_reordered = matrix_b
             else:
-                print('no')
                 matrix_b_reordered = me.MatrixMixer._reorder_matrix(ingredient_matrix=matrix_b,
                                                                     ingredient_tokens=tokens_b, base_tokens=tokens_a)
             matrix_mix = np.concatenate((matrix_a, matrix_b_reordered), axis=1)
