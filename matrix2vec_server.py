@@ -47,22 +47,27 @@ ppmi_svd/
 rw012_normalized_svd/
 '''
 
-# for i in range(2, 11):
-#     mn = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w'+str(i)+'.npy')
-#     matrix = mn.pmi_without_log()
-#
-#     matrix = me.MatrixSmoothing(matrix).log_shifted_positive(k_shift=None)
-#
-#     for dimension in [200, 500, 800, 1000]:
-#         vectors = me.MatrixDimensionReducer.truncated_svd(matrix, dimension)
-#         me.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_normalized_smoothed_svd/' + 'firstOrder_normalized_smoothed_svd_w' +
-#                                 str(i) + '_d' + str(dimension) + '.npy')
-
 for i in range(2, 11):
-    matrix = np.load('output/intermediate_data/ppmi/' + 'ppmi_w' + str(i) + '.npy')
+    mn = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder_noStopWords/firstOrder_noStopWords_w'+str(i)+'.npy')
+    matrix = mn.pmi_without_log()
+    matrix = me.MatrixSmoothing(matrix).log_shifted_positive(k_shift=None)
     for dimension in [500, 700, 1000]:
         vectors = me.MatrixDimensionReducer.truncated_svd(matrix, dimension)
-        me.save_enhanced_matrix(vectors, 'output/vectors/ppmi_svd/' + 'ppmi_svd_w' + str(i) + '_d' + str(dimension) + '.npy')
+        me.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_noStopWords_ppmied_svd/' + 'firstOrder_noStopWords_ppmied_svd_w' +
+                                str(i) + '_d' + str(dimension) + '.npy')
+
+for i in range(2, 11):
+    matrix = np.load('output/intermediate_data/firstOrder_noStopWords/firstOrder_noStopWords_w'+str(i)+'.npy')
+    for dimension in [500, 700, 1000]:
+        vectors = me.MatrixDimensionReducer.truncated_svd(matrix, dimension)
+        me.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_noStopWords_svd/' + 'firstOrder_noStopWords_svd_w' +
+                                str(i) + '_d' + str(dimension) + '.npy')
+
+# for i in range(2, 11):
+#     matrix = np.load('output/intermediate_data/ppmi/' + 'ppmi_w' + str(i) + '.npy')
+#     for dimension in [500, 700, 1000]:
+#         vectors = me.MatrixDimensionReducer.truncated_svd(matrix, dimension)
+#         me.save_enhanced_matrix(vectors, 'output/vectors/ppmi_svd/' + 'ppmi_svd_w' + str(i) + '_d' + str(dimension) + '.npy')
 
 # for rw in [0, 1, 2]:
 #     for i in range(2, 11):
