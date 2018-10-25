@@ -1,5 +1,7 @@
 import matrix_enhancer as me
 import numpy as np
+from nltk.corpus import stopwords
+import string
 
 import sys
 sys.path.insert(0, '../common/')
@@ -51,6 +53,19 @@ for i in range(2, 11):
     mn = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder_noStopWords/firstOrder_noStopWords_w'+str(i)+'.npy')
     matrix = mn.pmi_without_log()
     matrix = me.MatrixSmoothing(matrix).log_shifted_positive(k_shift=None)
+
+    # for firstOrder_noStopWords matrix, after ppmi, there are infinity values rows/columns. Change them to 0s.
+    tokens = common.read_pickle('input/encoded_edges_count_window_size_' + str(i) + '_undirected_tokens.pickle')
+    stop = stopwords.words('english') + list(string.punctuation)
+    stop_indices = []
+    for i in range(len(tokens)):
+        if tokens[i] in stop:
+            stop_indices.append(i)
+    matrix[:, stop_indices] = 0  # replace corresponding columns to 0
+    matrix[stop_indices, :] = 0  # replace corresponding rows to 0
+
+    me.save_enhanced_matrix(matrix, 'output/intermediate_data/firstOrder_noStopWords_ppmied/firstOrder_noStopWords_ppmied_w'+ str(i) +'.npy')
+
     for dimension in [500, 700, 1000]:
         vectors = me.MatrixDimensionReducer.truncated_svd(matrix, dimension)
         me.save_enhanced_matrix(vectors, 'output/vectors/firstOrder_noStopWords_ppmied_svd/' + 'firstOrder_noStopWords_ppmied_svd_w' +
