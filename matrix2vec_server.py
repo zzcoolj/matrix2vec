@@ -51,7 +51,7 @@ rw012_normalized_svd/
 
 for i in range(2, 11):
     mn = me.MatrixNormalization.from_storage('output/intermediate_data/firstOrder/firstOrder_w'+str(i)+'.npy')
-    matrix = mn
+    matrix = mn.matrix
     # matrix = mn.pmi_without_log()
     # matrix = me.MatrixSmoothing(matrix).log_shifted_positive(k_shift=None)
 
